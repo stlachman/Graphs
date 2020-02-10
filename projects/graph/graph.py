@@ -88,7 +88,25 @@ class Graph:
 
         This should be done using recursion.
         """
-        pass  # TODO
+        hash = {}
+        path = ""
+        def helper(self, current_vertex):
+          nonlocal path 
+          hash[f"{current_vertex}"] = True
+          path += f"{current_vertex}, "
+          # find all unvisited neighbors
+          unvisited_neighbors = [neighbor for neighbor in self.get_neighbors(current_vertex) if str(neighbor) not in hash]
+
+          if len(unvisited_neighbors) == 0:
+            return
+          else: 
+            # loop through unvisited neighbors and call helper
+            for unvisited_neighbor in unvisited_neighbors:
+              # hash[str(unvisited_neighbor)] = True
+              helper(self, unvisited_neighbor)
+        helper(self, starting_vertex)
+        print(path[:-2])
+
 
     def bfs(self, starting_vertex, destination_vertex):
         """
