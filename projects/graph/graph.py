@@ -114,7 +114,23 @@ class Graph:
         starting_vertex to destination_vertex in
         breath-first order.
         """
-        pass  # TODO
+        hash = {}
+        q = Queue()
+        q.enqueue({ "value": starting_vertex, "previous_items": [] })
+        while q.size() > 0:
+          current_node = q.dequeue()
+          current_value = current_node["value"]
+          current_previous_items = current_node["previous_items"]
+          
+          if current_value == destination_vertex:
+            return current_previous_items + [current_value]
+          #add to hash
+          if str(current_value) not in hash:
+            hash[str(current_value)] = True 
+
+            for neighbor in self.get_neighbors(current_value):
+              q.enqueue({"value": neighbor, "previous_items": current_previous_items + [current_value] })
+        return []
 
     def dfs(self, starting_vertex, destination_vertex):
         """
@@ -122,9 +138,25 @@ class Graph:
         starting_vertex to destination_vertex in
         depth-first order.
         """
-        pass  # TODO
+        hash = {}
+        stack = Stack()
+        stack.push({ "value": starting_vertex, "previous_items": [] })
+        while stack.size() > 0:
+          current_node = stack.pop()
+          current_value = current_node["value"]
+          current_previous_items = current_node["previous_items"]
 
-    def dfs_recursive(self, starting_vertex):
+          if current_value == destination_vertex:
+            return current_previous_items + [current_value]
+          #add to hash
+          if str(current_value) not in hash:
+            hash[str(current_value)] = True 
+
+            for neighbor in self.get_neighbors(current_value):
+              stack.push({"value": neighbor, "previous_items": current_previous_items + [current_value] })
+        return []
+
+    def dfs_recursive(self, starting_vertex, destination_vertex):
         """
         Return a list containing a path from
         starting_vertex to destination_vertex in
@@ -132,7 +164,26 @@ class Graph:
 
         This should be done using recursion.
         """
-        pass  # TODO
+        hash = {}
+        results = None
+        def helper(self, current_vertex, destination_vertex):
+          nonlocal results
+          if current_vertex['value'] == destination_vertex:
+             results = (current_vertex["previous_items"] + [current_vertex['value']])
+          
+          hash[f"{current_vertex['value']}"] = True
+          # find all unvisited neighbors
+          unvisited_neighbors = [neighbor for neighbor in self.get_neighbors(current_vertex['value']) if str(neighbor) not in hash]
+
+          if len(unvisited_neighbors) == 0:
+            return
+          else: 
+            # loop through unvisited neighbors and call helper
+            for unvisited_neighbor in unvisited_neighbors:
+              # hash[str(unvisited_neighbor)] = True
+              helper(self, { "value":unvisited_neighbor, "previous_items": current_vertex["previous_items"] + [current_vertex["value"]] }, destination_vertex )
+        helper(self, {"value": starting_vertex, "previous_items": []}, destination_vertex)
+        return results
 
 if __name__ == '__main__':
     graph = Graph()  # Instantiate your graph
