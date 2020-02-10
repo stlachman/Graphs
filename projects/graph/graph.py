@@ -13,26 +13,52 @@ class Graph:
         """
         Add a vertex to the graph.
         """
-        pass  # TODO
+        if str(vertex_id) not in self.vertices:
+          self.vertices[f"{vertex_id}"] = set()
+        else:
+          print("Duplicate vertex")
 
     def add_edge(self, v1, v2):
         """
         Add a directed edge to the graph.
         """
-        pass  # TODO
+        if str(v1) not in self.vertices:
+          print("Vertex does not exist")
+        else:
+          self.vertices[str(v1)].add(v2)
 
     def get_neighbors(self, vertex_id):
         """
         Get all neighbors (edges) of a vertex.
         """
-        pass  # TODO
+        neighbors = []
+        if str(vertex_id) in self.vertices:
+          for node in self.vertices[str(vertex_id)]:
+            neighbors.append(node)
+        else:
+          return []
+        return neighbors
 
     def bft(self, starting_vertex):
         """
         Print each vertex in breadth-first order
         beginning from starting_vertex.
         """
-        pass  # TODO
+        hash = {}
+        q = Queue()
+        q.enqueue(starting_vertex)
+        path = ""
+        while q.size() > 0:
+          current_node = q.dequeue()
+
+          #add to hash
+          if str(current_node) not in hash:
+            path += f"{current_node}, "
+            hash[str(current_node)] = True 
+
+            for neighbor in self.get_neighbors(current_node):
+              q.enqueue(neighbor)
+        print(path[:-2])
 
     def dft(self, starting_vertex):
         """
