@@ -27,14 +27,47 @@ player = Player(world.starting_room)
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
-traversal_path = []
-
-
+def reverse_direction(direction):
+  if direction == "n":
+    return "s"
+  elif direction == "s":
+    return "n"
+  elif direction == "e":
+    return "w"
+  elif direction == "w":
+    return "e"
+  else:
+    return "Invalid direction"
 
 # TRAVERSAL TEST
 visited_rooms = set()
+traversal_path = []
 player.current_room = world.starting_room
-visited_rooms.add(player.current_room)
+current_directions = []
+while len(visited_rooms) != 500:
+    visited_rooms.add(player.current_room)
+    exits = player.current_room.get_exits()
+    if "n" in exits and player.current_room.get_room_in_direction("n") not in visited_rooms:
+        current_directions.append('n')
+        traversal_path.append('n')
+        player.current_room = player.current_room.get_room_in_direction("n")
+    elif "w" in exits and player.current_room.get_room_in_direction("w") not in visited_rooms:
+        current_directions.append('w')
+        traversal_path.append('w')
+        player.current_room = player.current_room.get_room_in_direction("w")
+    elif "s" in exits and player.current_room.get_room_in_direction("s") not in visited_rooms:
+        current_directions.append('s')
+        traversal_path.append('s')
+        player.current_room = player.current_room.get_room_in_direction("s")
+    elif "e" in exits and player.current_room.get_room_in_direction("e") not in visited_rooms:
+        current_directions.append('e')
+        traversal_path.append('e')
+        player.current_room = player.current_room.get_room_in_direction("e")
+    else:
+        last_direction = current_directions.pop()
+        traversal_path.append(reverse_direction(last_direction))
+        player.current_room = player.current_room.get_room_in_direction(reverse_direction(last_direction))
+
 
 for move in traversal_path:
     player.travel(move)
@@ -51,12 +84,12 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.print_room_description(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     elif cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
