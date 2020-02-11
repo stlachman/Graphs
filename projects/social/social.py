@@ -4,11 +4,109 @@ class User:
     def __init__(self, name):
         self.name = name
 
+class Queue():
+  def __init__(self):
+      self.queue = []
+  def enqueue(self, value):
+      self.queue.append(value)
+  def dequeue(self):
+      if self.size() > 0:
+          return self.queue.pop(0)
+      else:
+          return None
+  def size(self):
+      return len(self.queue)
+
 class SocialGraph:
     def __init__(self):
         self.last_id = 0
         self.users = {}
         self.friendships = {}
+    
+    def get_neighbors(self, vertex_id):
+      """
+      Get all neighbors (edges) of a vertex.
+      """
+      neighbors = []
+      if vertex_id in self.friendships:
+        for node in self.friendships[vertex_id]:
+          neighbors.append(node)
+      else:
+        return []
+      return neighbors
+
+    def bfs(self, starting_vertex, destination_vertex):
+      """
+      Return a list containing the shortest path from
+      starting_vertex to destination_vertex in
+      breath-first order.
+      """
+      hash = {}
+      q = Queue()
+      q.enqueue({ "value": starting_vertex, "previous_items": [] })
+      while q.size() > 0:
+        current_node = q.dequeue()
+        current_value = current_node["value"]
+        current_previous_items = current_node["previous_items"]
+
+        if current_value == destination_vertex:
+          return current_previous_items + [current_value]
+        #add to hash
+        if current_value not in hash:
+          hash[current_value] = True 
+
+          for neighbor in self.get_neighbors(current_value):
+            q.enqueue({"value": neighbor, "previous_items": current_previous_items + [current_value] })
+      return []
+    def get_percentage_of_other_users(self, starting_vertex):
+      """
+      Start with starting_vertex as given user
+      count every node in graph
+
+      percentage of other users that are not the user or immediate friends
+      """
+      hash = {}
+      q = Queue()
+      q.enqueue(starting_vertex)
+      count = 0 
+      while q.size() > 0:
+        current_node = q.dequeue()
+
+        #add to hash
+        if current_node not in hash:
+          count += 1
+          hash[current_node] = True 
+
+          for neighbor in self.get_neighbors(current_node):
+            q.enqueue(neighbor)
+      # self.friendships is dictionary with user_id: {3, 4, 2}
+      # len will give us length
+      other_users = count - 1 - len(self.friendships[starting_vertex])
+      # other users divided by all users
+      return round(other_users/len(self.users)*100)
+    
+    def degree_of_separation(self, starting_vertex):
+      """
+      Start with starting_vertex as given user
+      count every node in graph
+      """
+      hash = {}
+      q = Queue()
+      q.enqueue({"value": starting_vertex, "depth": 0})
+      other_users = 0 
+      total_depth = 0
+      while q.size() > 0:
+        current = q.dequeue()
+        #add to hash
+        if current["value"] not in hash:
+          other_users += 1
+          total_depth += current["depth"]
+          hash[current["value"]] = True 
+
+          for neighbor in self.get_neighbors(current["value"]):
+            q.enqueue({"value": neighbor, "depth": current["depth"] + 1})
+    
+      return round(total_depth/other_users, 2)
 
     def add_friendship(self, user_id, friend_id):
         """
@@ -60,11 +158,11 @@ class SocialGraph:
         
         random.shuffle(friendship_pairs)
         # 10 pairs -> 20 relationships
-        count = 10
+        count = total_friends // 2
         for friendship_pair in friendship_pairs:
           if count == 0:
             break
-          if len(self.users[f"{friendship_pair[0]}"]) < 4 and len(self.users[f"{friendship_pair[1]}"]) < 4:
+          if len(self.friendships[friendship_pair[0]]) < 4 and len(self.friendships[friendship_pair[1]]) < 4:
             self.add_friendship(friendship_pair[0], friendship_pair[1])
             count -= 1
         
@@ -80,12 +178,16 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+        for num in self.users.keys():
+          if len(self.bfs(user_id, num)) > 0:
+            visited[num] = self.bfs(user_id, num)
         return visited
 
 
 if __name__ == '__main__':
     sg = SocialGraph()
-    sg.populate_graph(10, 2)
+    sg.populate_graph(1000, 5)
     print(sg.friendships)
     connections = sg.get_all_social_paths(1)
     print(connections)
+    print(sg.degree_of_separation(1))
